@@ -1,0 +1,508 @@
+Downloading uellow taxi data for Year {year} and Month {month}
+File /tmp/yellow_tripdata_2021-08.parquet already exists. Skipping download.
+File copied to DBFS at /FileStore/tables/yellow_tripdata_2021-08.parquet
+File verification in DBFS: Success
+Data loaded successfully. Row count: 2788757
+root
+ |-- VendorID: long (nullable = true)
+ |-- tpep_pickup_datetime: timestamp (nullable = true)
+ |-- tpep_dropoff_datetime: timestamp (nullable = true)
+ |-- passenger_count: double (nullable = true)
+ |-- trip_distance: double (nullable = true)
+ |-- RatecodeID: double (nullable = true)
+ |-- store_and_fwd_flag: string (nullable = true)
+ |-- PULocationID: long (nullable = true)
+ |-- DOLocationID: long (nullable = true)
+ |-- payment_type: long (nullable = true)
+ |-- fare_amount: double (nullable = true)
+ |-- extra: double (nullable = true)
+ |-- mta_tax: double (nullable = true)
+ |-- tip_amount: double (nullable = true)
+ |-- tolls_amount: double (nullable = true)
+ |-- improvement_surcharge: double (nullable = true)
+ |-- total_amount: double (nullable = true)
+ |-- congestion_surcharge: double (nullable = true)
+ |-- airport_fee: double (nullable = true)
+
++--------+--------------------+---------------------+---------------+-------------+----------+------------------+------------+------------+------------+-----------+-----+-------+----------+------------+---------------------+------------+--------------------+-----------+
+|VendorID|tpep_pickup_datetime|tpep_dropoff_datetime|passenger_count|trip_distance|RatecodeID|store_and_fwd_flag|PULocationID|DOLocationID|payment_type|fare_amount|extra|mta_tax|tip_amount|tolls_amount|improvement_surcharge|total_amount|congestion_surcharge|airport_fee|
++--------+--------------------+---------------------+---------------+-------------+----------+------------------+------------+------------+------------+-----------+-----+-------+----------+------------+---------------------+------------+--------------------+-----------+
+|       2| 2021-08-01 00:04:06|  2021-08-01 00:26:07|            2.0|         3.52|       1.0|                 N|          43|          42|           1|       16.5|  0.5|    0.5|      5.08|         0.0|                  0.3|       25.38|                 2.5|        0.0|
+|       1| 2021-08-01 00:34:14|  2021-08-01 00:43:02|            0.0|          2.1|       1.0|                 N|          79|         233|           2|        9.0|  3.0|    0.5|       0.0|         0.0|                  0.3|        12.8|                 2.5|        0.0|
+|       1| 2021-08-01 00:43:53|  2021-08-01 00:55:04|            0.0|          1.4|       1.0|                 N|         170|          90|           1|        8.5|  3.0|    0.5|      3.05|         0.0|                  0.3|       15.35|                 2.5|        0.0|
+|       1| 2021-08-01 00:53:19|  2021-08-01 00:55:34|            1.0|          0.4|       1.0|                 N|         229|         229|           1|        4.0|  3.0|    0.5|      1.17|         0.0|                  0.3|        8.97|                 2.5|        0.0|
+|       1| 2021-08-01 00:58:54|  2021-08-01 01:11:23|            1.0|          2.9|       1.0|                 N|         233|         249|           1|       12.0|  3.0|    0.5|       2.0|         0.0|                  0.3|        17.8|                 2.5|        0.0|
++--------+--------------------+---------------------+---------------+-------------+----------+------------------+------------+------------+------------+-----------+-----+-------+----------+------------+---------------------+------------+--------------------+-----------+
+only showing top 5 rows
+
+Number of rows loaded to raw_df is: 2788757
+Checking and removing duplicates 
+Original record count before deduplication: 2788757
+Distinct record count after dedupliation: 2788757
+No duplicates found
+QUALITY REPORT: No duplicates found
+Checking and removing nulls 
+Original row count: 2788757
+Final row count: 2788757
+Total rows removed: 0
+Null counts by column:
+  - trip_distance: 0 rows
+  - total_amount: 0 rows
+Converting negative amount to positive for currency columns
+Negative currency values found (before conversion):
+  - fare_amount: 12725
+  - tip_amount: 396
+  - tolls_amount: 366
+  - extra: 5600
+  - mta_tax: 12572
+  - improvement_surcharge: 12857
+  - congestion_surcharge: 10103
+  - Airport_fee: 1074
+  - total_amount: 12903
+
+Total rows processed: 2788757
+All specified currency amounts converted to positive values.
+enriching the data frame
+Data enhancement complete:
+- Original columns: 19
+- Enhanced columns: 24
+- New columns added: 5
+- Row count: 2788757 (unchanged from original: 2788757)
+Creating the dimensional tables from the downloaded and enhanced data
+Creating dimensional model...
+Time dimension count: 1539011
+Fact table count: 2788757
+root
+ |-- tpep_pickup_datetime: timestamp (nullable = true)
+ |-- pickup_hour: integer (nullable = true)
+ |-- pickup_date: date (nullable = true)
+ |-- pickup_day_of_week: string (nullable = true)
+
+root
+ |-- trip_id: long (nullable = false)
+ |-- VendorID: long (nullable = true)
+ |-- tpep_pickup_datetime: timestamp (nullable = true)
+ |-- tpep_dropoff_datetime: timestamp (nullable = true)
+ |-- PULocationID: long (nullable = true)
+ |-- DOLocationID: long (nullable = true)
+ |-- passenger_count: double (nullable = true)
+ |-- payment_type: long (nullable = true)
+ |-- RateCodeID: double (nullable = true)
+ |-- trip_distance: double (nullable = true)
+ |-- fare_amount: double (nullable = true)
+ |-- tip_amount: double (nullable = true)
+ |-- total_amount: double (nullable = true)
+ |-- trip_duration_minutes: double (nullable = true)
+ |-- price_per_mile: double (nullable = true)
+
+Saving tables to Delta
+Saving tables to Delta format at /FileStore/tables/nyc_taxi...
+Database nyc_db created or already exists
+Saving table dim_time to /FileStore/tables/nyc_taxi/dim_time
+root
+ |-- tpep_pickup_datetime: timestamp (nullable = true)
+ |-- pickup_hour: integer (nullable = true)
+ |-- pickup_date: date (nullable = true)
+ |-- pickup_day_of_week: string (nullable = true)
+
+Saved dim_time to Delta format
+Table nyc_db.dim_time registered in metastore
+Saving table fact_trips to /FileStore/tables/nyc_taxi/fact_trips
+root
+ |-- trip_id: long (nullable = false)
+ |-- VendorID: long (nullable = true)
+ |-- tpep_pickup_datetime: timestamp (nullable = true)
+ |-- tpep_dropoff_datetime: timestamp (nullable = true)
+ |-- PULocationID: long (nullable = true)
+ |-- DOLocationID: long (nullable = true)
+ |-- passenger_count: double (nullable = true)
+ |-- payment_type: long (nullable = true)
+ |-- RateCodeID: double (nullable = true)
+ |-- trip_distance: double (nullable = true)
+ |-- fare_amount: double (nullable = true)
+ |-- tip_amount: double (nullable = true)
+ |-- total_amount: double (nullable = true)
+ |-- trip_duration_minutes: double (nullable = true)
+ |-- price_per_mile: double (nullable = true)
+
+Saved fact_trips to Delta format
+Table nyc_db.fact_trips registered in metastore
+All tables saved to Delta format successfully
+Creating the additinal dimensional tables from lookup data
+Table nyc_db.dim_payment_type registered in metastore
+Sample data:
++------------+-----------------+
+|payment_type|payment_type_desc|
++------------+-----------------+
+|           1|      Credit card|
+|           2|             Cash|
+|           3|        No charge|
+|           4|          Dispute|
+|           5|          Unknown|
++------------+-----------------+
+only showing top 5 rows
+
+Table nyc_db.dim_rate_code registered in metastore
+Sample data:
++----------+--------------------+
+|RateCodeID|      rate_code_desc|
++----------+--------------------+
+|         1|       Standard rate|
+|         2|                 JFK|
+|         3|              Newark|
+|         4|Nassau or Westche...|
+|         5|     Negotiated fare|
++----------+--------------------+
+only showing top 5 rows
+
+Downloading taxi zone lookup from https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv...
+Loaded taxi zone dimension with 265 rows
+Table nyc_db.dim_taxi_zone registered in metastore
+Sample data:
++-----------+-------------+--------------------+------------+
+|location_id|      borough|                zone|service_zone|
++-----------+-------------+--------------------+------------+
+|          1|          EWR|      Newark Airport|         EWR|
+|          2|       Queens|         Jamaica Bay|   Boro Zone|
+|          3|        Bronx|Allerton/Pelham G...|   Boro Zone|
+|          4|    Manhattan|       Alphabet City| Yellow Zone|
+|          5|Staten Island|       Arden Heights|   Boro Zone|
++-----------+-------------+--------------------+------------+
+only showing top 5 rows
+
+
+---  DATA QUALITY ANALYSIS ---
+
+Initial row count: 2788757
+Final row count after cleaning: 2788757
+Data retention: 100.00%
+General analytical reports 
+
+--- ANALYTICS RESULTS ---
+
+Query 1: Busiest hours for taxi trips
++-----------+----------+
+|pickup_hour|trip_count|
++-----------+----------+
+|         18|    202403|
+|         17|    195086|
+|         15|    183926|
+|         16|    180982|
+|         19|    180799|
+|         14|    180254|
+|         13|    168014|
+|         12|    163384|
+|         20|    150213|
+|         11|    145463|
+|         21|    134152|
+|         10|    133968|
+|         22|    121223|
+|          9|    119517|
+|          8|    103964|
+|         23|     96804|
+|          7|     74401|
+|          0|     72740|
+|          1|     48401|
+|          6|     44151|
+|          2|     32965|
+|          3|     22277|
+|          5|     17760|
+|          4|     15910|
++-----------+----------+
+
+Payment type distribution analysis:
++------------+-----------------+----------+--------+-------+-------------+
+|payment_type|payment_type_desc|trip_count|avg_fare|avg_tip|total_revenue|
++------------+-----------------+----------+--------+-------+-------------+
+|           1|      Credit card|   2005222|   13.45|   3.14| 4.12952612E7|
+|           2|             Cash|    623420|   13.23|    0.0|1.056652346E7|
+|           3|        No charge|     13317|    11.6|   0.03|    199205.83|
+|           4|          Dispute|     11208|   13.61|    0.1|    193844.37|
++------------+-----------------+----------+--------+-------+-------------+
+
+Rate code distribution analysis:
++--------------------+----------+------------+--------+-------------+
+|      rate_code_desc|trip_count|avg_distance|avg_fare|total_revenue|
++--------------------+----------+------------+--------+-------------+
+|       Standard rate|   2551884|        2.82|   17.64|4.500659194E7|
+|                 JFK|     76484|       17.38|   70.09|   5360635.48|
+|     Negotiated fare|     14990|        5.83|   69.65|   1044058.51|
+|              Newark|      5428|       16.49|   89.31|    484779.25|
+|Nassau or Westche...|      4173|       20.95|   84.61|    353076.09|
+|             Unknown|       192|        0.71|    22.1|      4242.24|
+|          Group ride|        16|        1.86|   90.71|      1451.35|
++--------------------+----------+------------+--------+-------------+
+
+Payment method by rate code:
++--------------------+-----------------+-----+
+|      rate_code_desc|payment_type_desc|count|
++--------------------+-----------------+-----+
+|          Group ride|        No charge|    6|
+|          Group ride|      Credit card|    4|
+|          Group ride|             Cash|    4|
+|          Group ride|          Dispute|    2|
+|                 JFK|      Credit card|60011|
+|                 JFK|             Cash|15494|
+|                 JFK|          Dispute|  490|
+|                 JFK|        No charge|  489|
+|Nassau or Westche...|      Credit card| 2577|
+|Nassau or Westche...|             Cash| 1506|
+|Nassau or Westche...|        No charge|   55|
+|Nassau or Westche...|          Dispute|   35|
+|     Negotiated fare|      Credit card|12232|
+|     Negotiated fare|             Cash| 2033|
+|     Negotiated fare|        No charge|  457|
+|     Negotiated fare|          Dispute|  268|
+|              Newark|      Credit card| 3957|
+|              Newark|             Cash| 1251|
+|              Newark|        No charge|  129|
+|              Newark|          Dispute|   91|
++--------------------+-----------------+-----+
+only showing top 20 rows
+
+Zone related nalytical reports 
+
+--- ZONE ANALYTICS REPORT ---
+
+Top pickup boroughs by trip count:
++--------------+----------+--------+-------------+
+|pickup_borough|trip_count|avg_fare|total_revenue|
++--------------+----------+--------+-------------+
+|     Manhattan|   2488499|   17.23|4.288300191E7|
+|        Queens|    227168|   49.39|1.122070018E7|
+|      Brooklyn|     30836|   31.67|    976575.91|
+|       Unknown|     19631|   27.91|    547972.49|
+|           N/A|     12963|   54.82|    710692.86|
+|         Bronx|      9052|   38.07|    344600.23|
+| Staten Island|       319|   89.99|     28707.61|
+|           EWR|       289|   92.35|     26688.54|
++--------------+----------+--------+-------------+
+
+Top 10 routes (zone pairs) by revenue:
++--------------------+--------------------+----------+------------+------------+-------------+
+|         pickup_zone|        dropoff_zone|trip_count|avg_distance|avg_duration|total_revenue|
++--------------------+--------------------+----------+------------+------------+-------------+
+|         JFK Airport|      Outside of NYC|      4897|       21.85|       44.06|    449741.21|
+|         JFK Airport|Times Sq/Theatre ...|      2819|       18.33|       51.46|    199753.76|
+|                 N/A|                 N/A|      9023|        2.59|       15.98|    197179.84|
+|         JFK Airport|        Clinton East|      2522|       18.48|       48.93|    177935.84|
+|Upper East Side S...|Upper East Side N...|     14613|        1.09|        7.55|    167904.86|
+|Upper East Side N...|Upper East Side S...|     12684|        1.08|        8.33|    149298.96|
+|      Outside of NYC|      Outside of NYC|      1395|        2.33|        3.42|    138926.75|
+|         JFK Airport|         Murray Hill|      1805|       17.15|       40.86|    130628.89|
+|   LaGuardia Airport|Times Sq/Theatre ...|      2622|       10.53|       34.88|    130523.95|
+|   LaGuardia Airport|      Outside of NYC|      1295|       23.13|       52.56|    129826.46|
++--------------------+--------------------+----------+------------+------------+-------------+
+
+Average trip metrics by payment type:
++-----------------+----------+------------+--------+-------+--------------+
+|payment_type_desc|trip_count|avg_distance|avg_fare|avg_tip|tip_percentage|
++-----------------+----------+------------+--------+-------+--------------+
+|      Credit card|   2005222|        3.33|   13.45|   3.14|         28.23|
+|             Cash|    623420|        3.28|   13.23|    0.0|           0.0|
+|             null|    135590|        92.9|   26.22|   2.64|         13.67|
+|        No charge|     13317|        2.33|    11.6|   0.03|          0.67|
+|          Dispute|     11208|        2.83|   13.61|    0.1|           0.7|
++-----------------+----------+------------+--------+-------+--------------+
+
+Trip metrics by rate code:
++--------------------+----------+------------+------------+------------------+-------------+
+|      rate_code_desc|trip_count|avg_distance|avg_duration|avg_price_per_mile|total_revenue|
++--------------------+----------+------------+------------+------------------+-------------+
+|       Standard rate|   2551884|        2.82|       15.25|              5.53|4.500659194E7|
+|                null|    135590|        92.9|       22.91|              8.25|   4484104.87|
+|                 JFK|     76484|       17.38|       46.52|             50.93|   5360635.48|
+|     Negotiated fare|     14990|        5.83|       15.57|            154.86|   1044058.51|
+|              Newark|      5428|       16.49|       43.97|             29.52|    484779.25|
+|Nassau or Westche...|      4173|       20.95|       41.15|              3.59|    353076.09|
+|             Unknown|       192|        0.71|        13.3|               2.8|      4242.24|
+|          Group ride|        16|        1.86|        0.69|              3.01|      1451.35|
++--------------------+----------+------------+------------+------------------+-------------+
+
+
+--- LOCATION PATTERN ANALYSIS ---
+
+Top 10 most popular pickup locations:
++-----------+------------+---------+--------------------+------------+------------------+------------------+------------------+
+|location_id|pickup_count|  borough|                zone|service_zone|      avg_distance|          avg_fare|     total_revenue|
++-----------+------------+---------+--------------------+------------+------------------+------------------+------------------+
+|        132|      122820|   Queens|         JFK Airport|    Airports|15.504930141671037| 45.22570688812891| 7092365.329991836|
+|        237|      122484|Manhattan|Upper East Side S...| Yellow Zone| 1.939472747460889| 9.464941461741743|1841034.8600016513|
+|        236|      103324|Manhattan|Upper East Side N...| Yellow Zone|3.7696347412024025| 10.10739315163924|1632357.9000012614|
+|        186|      101790|Manhattan|Penn Station/Madi...| Yellow Zone|2.5252023774437857|11.575010610079396|1777391.5100014168|
+|        161|       98048|Manhattan|      Midtown Center| Yellow Zone| 2.657767318048341|10.597329879242597| 1615645.530001257|
+|        170|       92757|Manhattan|         Murray Hill| Yellow Zone| 4.080997013702488| 10.87540951087198| 1564395.890001081|
+|        162|       88510|Manhattan|        Midtown East| Yellow Zone| 2.344710541181739|10.647700598802166|1470166.4600009813|
+|        142|       81752|Manhattan| Lincoln Square East| Yellow Zone|2.6197518103532405|10.514663861434206|1334392.8000008136|
+|         48|       81272|Manhattan|        Clinton East| Yellow Zone| 4.111700954818401|11.606714612658223|1421753.4200009555|
+|         79|       80185|Manhattan|        East Village| Yellow Zone| 4.109879154455336|11.833613768160355|1441099.7600008103|
++-----------+------------+---------+--------------------+------------+------------------+------------------+------------------+
+
+Top 10 most popular dropoff locations:
++-----------+---------+--------------------+------------+-------------+------------------+------------------+------------------+
+|location_id|  borough|                zone|service_zone|dropoff_count|      avg_distance|          avg_fare|     total_revenue|
++-----------+---------+--------------------+------------+-------------+------------------+------------------+------------------+
+|        237|Manhattan|Upper East Side S...| Yellow Zone|       107078| 2.800221707540311|  9.03255738807194|  1562110.91000127|
+|        236|Manhattan|Upper East Side N...| Yellow Zone|       104992|3.2843561414202913| 9.805110008381313|1637514.0300012385|
+|        161|Manhattan|      Midtown Center| Yellow Zone|        89487| 3.259135852134968| 9.718300535272858| 1371597.900000966|
+|        170|Manhattan|         Murray Hill| Yellow Zone|        86808|  2.19248905630817|10.255475532208393| 1407892.000000908|
+|        141|Manhattan|     Lenox Hill West| Yellow Zone|        77860| 7.613093115848989| 10.02543475468748|1240672.1100007147|
+|         48|Manhattan|        Clinton East| Yellow Zone|        73585| 4.075079839641232|11.792051505061586|1325074.8900007962|
+|        239|Manhattan|Upper West Side S...| Yellow Zone|        73108|7.1938541609672875|10.919684849810702| 1255409.510000625|
+|        162|Manhattan|        Midtown East| Yellow Zone|        72206| 4.964890452316995|10.196276348225485|1164545.9600005976|
+|        142|Manhattan| Lincoln Square East| Yellow Zone|        70754|3.3722289905870984|10.181669587584755|1140180.0500005535|
+|        186|Manhattan|Penn Station/Madi...| Yellow Zone|        67852| 5.574734864116042|10.604221688380129| 1116302.580000573|
++-----------+---------+--------------------+------------+-------------+------------------+------------------+------------------+
+
+Top 10 most popular routes:
++---------+----------+----------+------------------+------------------+------------------+
+|pickup_id|dropoff_id|trip_count|      avg_distance|      avg_duration|     total_revenue|
++---------+----------+----------+------------------+------------------+------------------+
+|      237|       236|     14613|1.0942250051324176| 7.549437487168948|167904.85999999673|
+|      236|       237|     12684|1.0832253232418851| 8.326538946704494| 149298.9600000033|
+|      237|       237|     11277|0.6771667996807671| 6.714036534539335|120705.74000001134|
+|      236|       236|      9445|0.6549835892006354| 5.352537850714648|  97371.3900000079|
+|      264|       264|      9023|2.5945849495733135|15.976606450183022|197179.83999999036|
+|      237|       161|      7040| 1.143517045454547| 8.811136363636367| 84529.74000000466|
+|      161|       237|      6706|1.1151327169698793| 9.056118401431553| 80021.32000000456|
+|      239|       142|      6325|0.9068901185770735| 7.576743083003934| 68605.50000000311|
+|      239|       238|      6235|0.8497145148356038| 6.001212510024044| 65772.30000000303|
+|      142|       239|      6184|1.0092205692108693| 7.025237710219921| 69558.30000000329|
++---------+----------+----------+------------------+------------------+------------------+
+
+Saving tables to Delta format at /FileStore/tables/nyc_taxi...
+Database nyc_db created or already exists
+Saving table dim_time to /FileStore/tables/nyc_taxi/dim_time
+root
+ |-- tpep_pickup_datetime: timestamp (nullable = true)
+ |-- pickup_hour: integer (nullable = true)
+ |-- pickup_date: date (nullable = true)
+ |-- pickup_day_of_week: string (nullable = true)
+
+Saved dim_time to Delta format
+Table nyc_db.dim_time registered in metastore
+Saving table fact_trips to /FileStore/tables/nyc_taxi/fact_trips
+root
+ |-- trip_id: long (nullable = false)
+ |-- VendorID: long (nullable = true)
+ |-- tpep_pickup_datetime: timestamp (nullable = true)
+ |-- tpep_dropoff_datetime: timestamp (nullable = true)
+ |-- PULocationID: long (nullable = true)
+ |-- DOLocationID: long (nullable = true)
+ |-- passenger_count: double (nullable = true)
+ |-- payment_type: long (nullable = true)
+ |-- RateCodeID: double (nullable = true)
+ |-- trip_distance: double (nullable = true)
+ |-- fare_amount: double (nullable = true)
+ |-- tip_amount: double (nullable = true)
+ |-- total_amount: double (nullable = true)
+ |-- trip_duration_minutes: double (nullable = true)
+ |-- price_per_mile: double (nullable = true)
+
+Saved fact_trips to Delta format
+Table nyc_db.fact_trips registered in metastore
+Saving table dim_payment_type to /FileStore/tables/nyc_taxi/dim_payment_type
+root
+ |-- payment_type: integer (nullable = false)
+ |-- payment_type_desc: string (nullable = false)
+
+Saved dim_payment_type to Delta format
+Table nyc_db.dim_payment_type registered in metastore
+Saving table dim_rate_code to /FileStore/tables/nyc_taxi/dim_rate_code
+root
+ |-- RateCodeID: integer (nullable = false)
+ |-- rate_code_desc: string (nullable = false)
+
+Saved dim_rate_code to Delta format
+Table nyc_db.dim_rate_code registered in metastore
+Saving table dim_taxi_zone to /FileStore/tables/nyc_taxi/dim_taxi_zone
+root
+ |-- location_id: string (nullable = true)
+ |-- borough: string (nullable = true)
+ |-- zone: string (nullable = true)
+ |-- service_zone: string (nullable = true)
+
+Saved dim_taxi_zone to Delta format
+Table nyc_db.dim_taxi_zone registered in metastore
+All tables saved to Delta format successfully
+
+--- VERIFYING SAVED TABLES ---
+
+
+Sample data from dim_time:
++--------------------+-----------+-----------+------------------+
+|tpep_pickup_datetime|pickup_hour|pickup_date|pickup_day_of_week|
++--------------------+-----------+-----------+------------------+
+|2021-08-01 00:44:09 |0          |2021-08-01 |Sunday            |
+|2021-08-01 00:01:51 |0          |2021-08-01 |Sunday            |
+|2021-08-01 00:11:35 |0          |2021-08-01 |Sunday            |
+|2021-08-01 00:45:42 |0          |2021-08-01 |Sunday            |
+|2021-08-01 00:48:08 |0          |2021-08-01 |Sunday            |
++--------------------+-----------+-----------+------------------+
+
+Total rows in dim_time: 1,539,011
+
+Sample data from dim_taxi_zone:
++-----------+-------------+-----------------------+------------+
+|location_id|borough      |zone                   |service_zone|
++-----------+-------------+-----------------------+------------+
+|1          |EWR          |Newark Airport         |EWR         |
+|2          |Queens       |Jamaica Bay            |Boro Zone   |
+|3          |Bronx        |Allerton/Pelham Gardens|Boro Zone   |
+|4          |Manhattan    |Alphabet City          |Yellow Zone |
+|5          |Staten Island|Arden Heights          |Boro Zone   |
++-----------+-------------+-----------------------+------------+
+
+Total rows in dim_taxi_zone: 265
+
+Sample data from dim_payment_type:
++------------+-----------------+
+|payment_type|payment_type_desc|
++------------+-----------------+
+|1           |Credit card      |
+|2           |Cash             |
+|3           |No charge        |
+|4           |Dispute          |
+|5           |Unknown          |
++------------+-----------------+
+
+Total rows in dim_payment_type: 6
+
+Sample data from dim_rate_code:
++----------+---------------------+
+|RateCodeID|rate_code_desc       |
++----------+---------------------+
+|1         |Standard rate        |
+|2         |JFK                  |
+|3         |Newark               |
+|4         |Nassau or Westchester|
+|5         |Negotiated fare      |
++----------+---------------------+
+
+Total rows in dim_rate_code: 7
+
+Sample data from fact_trips:
++-------+--------+--------------------+---------------------+------------+------------+---------------+------------+----------+-------------+-----------+----------+------------+---------------------+--------------+
+|trip_id|VendorID|tpep_pickup_datetime|tpep_dropoff_datetime|PULocationID|DOLocationID|passenger_count|payment_type|RateCodeID|trip_distance|fare_amount|tip_amount|total_amount|trip_duration_minutes|price_per_mile|
++-------+--------+--------------------+---------------------+------------+------------+---------------+------------+----------+-------------+-----------+----------+------------+---------------------+--------------+
+|0      |2       |2021-08-01 00:04:06 |2021-08-01 00:26:07  |43          |42          |2.0            |1           |1.0       |3.52         |16.5       |5.08      |25.38       |22.02                |4.69          |
+|1      |1       |2021-08-01 00:34:14 |2021-08-01 00:43:02  |79          |233         |0.0            |2           |1.0       |2.1          |9.0        |0.0       |12.8        |8.8                  |4.29          |
+|2      |1       |2021-08-01 00:43:53 |2021-08-01 00:55:04  |170         |90          |0.0            |1           |1.0       |1.4          |8.5        |3.05      |15.35       |11.18                |6.07          |
+|3      |1       |2021-08-01 00:53:19 |2021-08-01 00:55:34  |229         |229         |1.0            |1           |1.0       |0.4          |4.0        |1.17      |8.97        |2.25                 |10.0          |
+|4      |1       |2021-08-01 00:58:54 |2021-08-01 01:11:23  |233         |249         |1.0            |1           |1.0       |2.9          |12.0       |2.0       |17.8        |12.48                |4.14          |
++-------+--------+--------------------+---------------------+------------+------------+---------------+------------+----------+-------------+-----------+----------+------------+---------------------+--------------+
+
+Total rows in fact_trips: 2,788,757
+
+Table verification complete.
+
+Data processing complete.
+Out[142]: {'tables': {'dim_time': DataFrame[tpep_pickup_datetime: timestamp, pickup_hour: int, pickup_date: date, pickup_day_of_week: string],
+  'fact_trips': DataFrame[trip_id: bigint, VendorID: bigint, tpep_pickup_datetime: timestamp, tpep_dropoff_datetime: timestamp, PULocationID: bigint, DOLocationID: bigint, passenger_count: double, payment_type: bigint, RateCodeID: double, trip_distance: double, fare_amount: double, tip_amount: double, total_amount: double, trip_duration_minutes: double, price_per_mile: double],
+  'dim_payment_type': DataFrame[payment_type: int, payment_type_desc: string],
+  'dim_rate_code': DataFrame[RateCodeID: int, rate_code_desc: string],
+  'dim_taxi_zone': DataFrame[location_id: string, borough: string, zone: string, service_zone: string]},
+ 'quality_report': {'initial_count': 2788757,
+  'final_count': 2788757,
+  'retention_pct': 100.0},
+ 'zone_analysis': None}
